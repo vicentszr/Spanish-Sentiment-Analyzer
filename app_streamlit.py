@@ -1,10 +1,13 @@
 import streamlit as st
+import os
+from dotenv import load_dotenv
 from scraper import get_reviews_google, analizar_sentimiento
 
 st.title('🍽️ Analizador de Restaurantes Extremeños')
 st.write('Analiza el sentimiento de las reseñas de Google Maps con IA')
 
-API_KEY = 'AIzaSyBCy4Jx0ZtIEZbarK_YusAiRwqhbK9GpHw'
+load_dotenv()
+API_KEY = os.getenv('GOOGLE_API_KEY')
 
 restaurante = st.text_input('Nombre del restaurante', 'Restaurante Atrio Caceres')
 

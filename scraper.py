@@ -1,4 +1,6 @@
 import requests
+import os
+from dotenv import load_dotenv
 from transformers import BertTokenizer, BertForSequenceClassification
 import torch
 import torch.nn.functional as F
@@ -44,7 +46,8 @@ def get_reviews_google(nombre_restaurante, api_key):
     return reseñas
 
 
-API_KEY = 'AIzaSyBCy4Jx0ZtIEZbarK_YusAiRwqhbK9GpHw'
+load_dotenv()
+API_KEY = os.getenv('GOOGLE_API_KEY')
 reseñas = get_reviews_google('Restaurante Atrio Caceres', API_KEY)
 print(f"Reseñas encontradas: {len(reseñas)}")
 for r in reseñas:
