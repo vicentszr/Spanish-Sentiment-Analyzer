@@ -1,5 +1,6 @@
 import requests
 import os
+import anthropic
 from dotenv import load_dotenv
 from transformers import BertTokenizer, BertForSequenceClassification
 import torch
@@ -53,8 +54,8 @@ print(f"Reseñas encontradas: {len(reseñas)}")
 for r in reseñas:
     print(f"⭐{r['rating']} - {r['texto'][:100]}")
 
-tokenizer = BertTokenizer.from_pretrained('beto_sentiment')
-model = BertForSequenceClassification.from_pretrained('beto_sentiment', num_labels=2)
+tokenizer = BertTokenizer.from_pretrained('vipont/beto-sentiment-spanish')
+model = BertForSequenceClassification.from_pretrained('vipont/beto-sentiment-spanish', num_labels=2)
 model.eval()
 
 def analizar_sentimiento(texto):
@@ -72,12 +73,26 @@ print("\n--- ANÁLISIS DE SENTIMIENTO ---")
 for r in reseñas:
     sentimiento, confianza = analizar_sentimiento(r['texto'])
     print(f"⭐{r['rating']} | {sentimiento} ({confianza}%) | {r['texto'][:80]}")
+def extraer_aspectos_negativos(texto):
+    client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
     
-st.divider()
-st.subheader('🔍 Analizar texto directamente')
-texto_libre = st.text_area('Escribe una reseña o comentario')
-if st.button('Analizar texto'):
-    if texto_libre:
-        sentimiento, confianza = analizar_sentimiento(texto_libre)
-        color = '🟢' if sentimiento == 'positivo' else '🔴'
-        st.write(f"{color} {sentimiento} ({confianza}%)")
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=200,
+        messages=[
+            {
+                "role": "user",
+                "content": f"""Analiza esta reseña negativa de un restaurante y extrae los aspectos negativos concretos.
+                
+Reseña: {texto}
+
+Devuelve SOLO una lista de aspectos negativos en español, uno por línea, sin explicaciones.
+Ejemplo:
+- Precio elevado
+- Servicio lento
+- Ruido excesivo"""
+            }
+        ]
+    )
+    
+    return message.content[0].text
