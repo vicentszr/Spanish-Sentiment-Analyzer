@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+from scraper import get_reviews_google, analizar_sentimiento, extraer_aspectos_negativos
 from dotenv import load_dotenv
 from scraper import get_reviews_google, analizar_sentimiento
 
@@ -45,6 +46,12 @@ if st.button('Analizar'):
             color = '🟢' if sentimiento == 'positivo' else '🔴'
             st.write(f"{color} ⭐{r['rating']} | {sentimiento} ({confianza}%)")
             st.caption(r['texto'])
+            
+            if sentimiento == 'negativo':
+                with st.expander("⚠️ Aspectos a mejorar"):
+                    aspectos = extraer_aspectos_negativos(r['texto'])
+                    st.write(aspectos)
+            
             st.divider()
 st.divider()
 st.subheader('🔍 Analizar texto directamente')
